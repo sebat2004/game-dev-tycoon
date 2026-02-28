@@ -1144,19 +1144,17 @@ body::after {
 
 /* ═══════ REMOTE CURSORS ═══════ */
 .remote-cursor-decoration {
-  border-radius: 2px;
+    border-radius: 2px;
 }
 
 .remote-cursor-label {
-  font-size: 0.65rem !important;
-  font-family: var(--font-code) !important;
-  padding: 1px 4px !important;
-  margin-left: 4px !important;
-  border-radius: 2px !important;
-  background: color-mix(in srgb, currentColor 30%) !important;
-  color: white !important;
-  white-space: nowrap !important;
-  font-weight: 600 !important;
-}
-
+    font-size: 0.65rem !important;
+    font-family: var(--font-code) !important;
+    padding: 1px 4px !important;
+    margin-left: 4px !important;
+    border-radius: 2px !important;
+    background: color-mix(in srgb, currentColor 30%) !important;
+    color: white !important;
+    white-space: nowrap !important;
+    font-weight: 600 !important;
 }

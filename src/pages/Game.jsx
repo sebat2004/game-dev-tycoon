@@ -124,8 +124,39 @@ export default function Game() {
     }, []);
 
     const handlePlayAgain = useCallback(() => {
-        navigate('/')
-    }, [navigate])
+        navigate('/');
+    }, [navigate]);
+
+    const handleToggleExpand = useCallback((bugId) => {
+        setExpandedBugId((prev) => (prev === bugId ? null : bugId));
+    }, []);
+
+    const handleEditingChange = useCallback((bugId, isEditing) => {
+        wsRef.current?.send(
+            JSON.stringify({
+                type: "editing",
+                payload: { bugId: isEditing ? bugId : null },
+            })
+        );
+    }, []);
+
+    const handleCodeChange = useCallback((bugId, code) => {
+        wsRef.current?.send(
+            JSON.stringify({
+                type: "code_update",
+                payload: { bugId, code },
+            })
+        );
+    }, []);
+
+    const handleCursorChange = useCallback((bugId, line, column) => {
+        wsRef.current?.send(
+            JSON.stringify({
+                type: "cursor_position",
+                payload: { bugId, line, column },
+            })
+        );
+    }, []);
 
     // Loading state
     if (!gameState) {
@@ -258,8 +289,8 @@ export default function Game() {
         gameState.timeRemaining <= 30
             ? 'critical'
             : gameState.timeRemaining <= 60
-              ? 'warning'
-              : ''
+                ? 'warning'
+                : ''
 
     return (
         <div className="game-container">
@@ -338,7 +369,7 @@ export default function Game() {
             <div className="bug-area">
                 <BugQueue activeBugs={gameState.activeBugs} maxBugs={10} />
 
-                {gameState.activeBugs.length === 0 ? (
+                {gameState.activeBugs.filter((b) => b.visibleAt).length === 0 ? (
                     <div className="no-bugs-state">
                         <div className="no-bugs-icon">✨</div>
                         <div className="no-bugs-text">All Clear</div>
@@ -348,15 +379,25 @@ export default function Game() {
                     </div>
                 ) : (
                     <div className="bug-cards-container">
-                        {gameState.activeBugs.map((bug) => (
-                            <BugCard
-                                key={bug.id}
-                                bug={bug}
-                                onSubmit={handleSubmitFix}
-                                feedback={fixFeedback[bug.id]}
-                                isSubmitting={submitting[bug.id]}
-                            />
-                        ))}
+                        {gameState.activeBugs
+                            .filter((bug) => bug.visibleAt)
+                            .map((bug) => (
+                                <BugCard
+                                    key={bug.id}
+                                    bug={bug}
+                                    onSubmit={handleSubmitFix}
+                                    feedback={fixFeedback[bug.id]}
+                                    isSubmitting={submitting[bug.id]}
+                                    isExpanded={expandedBugId === bug.id}
+                                    onToggleExpand={handleToggleExpand}
+                                    onEditingChange={handleEditingChange}
+                                    onCodeChange={handleCodeChange}
+                                    onCursorChange={handleCursorChange}
+                                    editingPlayers={editingPresence[bug.id] || []}
+                                    externalCode={codeUpdates[bug.id]}
+                                    remoteCursors={remoteCursors[bug.id] || {}}
+                                />
+                            ))}
                     </div>
                 )}
             </div>
