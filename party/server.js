@@ -460,10 +460,10 @@ export default class GameServer {
         this.state.activeBugs = []
 
         // Calculate score
-        const missedCount = this.state.bugHistory.filter(
-            (b) => b.status === 'unresolved' || b.status === 'expired'
+        const unresolvedCount = this.state.bugHistory.filter(
+            (b) => b.status === 'unresolved'
         ).length
-        this.state.score = Math.max(0, 100 - missedCount * PENALTY_PER_BUG)
+        this.state.score = Math.max(0, 100 - unresolvedCount * PENALTY_PER_BUG)
         this.state.progress = 100
 
         this.broadcast()
