@@ -1,5 +1,5 @@
 export default function BugQueue({ activeBugs, maxBugs }) {
-    const count = activeBugs?.length || 0;
+    const count = activeBugs?.length || 0
 
     return (
         <div className="bug-queue-bar">
@@ -16,9 +16,9 @@ export default function BugQueue({ activeBugs, maxBugs }) {
                 {count === 0
                     ? 'No active bugs'
                     : count === 1
-                        ? '1 bug active'
-                        : `${count} bugs active`}
+                      ? '1 bug active'
+                      : `${count} bugs active`}
             </span>
         </div>
-    );
+    )
 }

@@ -1,18 +1,18 @@
-import { useState, useRef } from 'react';
-import Editor from '@monaco-editor/react';
+import { useState, useRef } from 'react'
+import Editor from '@monaco-editor/react'
 
 export default function BugCard({ bug, onSubmit, feedback, isSubmitting }) {
-    const [code, setCode] = useState(bug.code);
-    const editorRef = useRef(null);
+    const [code, setCode] = useState(bug.code)
+    const editorRef = useRef(null)
 
     const handleEditorMount = (editor) => {
-        editorRef.current = editor;
-    };
+        editorRef.current = editor
+    }
 
     const handleSubmit = () => {
-        if (isSubmitting) return;
-        onSubmit(bug.id, code);
-    };
+        if (isSubmitting) return
+        onSubmit(bug.id, code)
+    }
 
     return (
         <div className="bug-card">
@@ -45,10 +45,16 @@ export default function BugCard({ bug, onSubmit, feedback, isSubmitting }) {
 
             <div className="bug-actions">
                 {feedback && (
-                    <div className={`fix-feedback ${feedback.fixed ? 'success' : 'error'}`}>
+                    <div
+                        className={`fix-feedback ${feedback.fixed ? 'success' : 'error'}`}
+                    >
                         {feedback.fixed ? '✅' : '❌'} {feedback.explanation}
                         {feedback.submittedBy && (
-                            <span style={{ marginLeft: '0.5rem', opacity: 0.7 }}>— {feedback.submittedBy}</span>
+                            <span
+                                style={{ marginLeft: '0.5rem', opacity: 0.7 }}
+                            >
+                                — {feedback.submittedBy}
+                            </span>
                         )}
                     </div>
                 )}
@@ -62,5 +68,5 @@ export default function BugCard({ bug, onSubmit, feedback, isSubmitting }) {
                 </button>
             </div>
         </div>
-    );
+    )
 }
