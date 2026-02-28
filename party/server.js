@@ -140,6 +140,46 @@ export default class GameServer {
                     [sender.id] // exclude sender
                 );
                 break;
+            case 'editing':
+                this.room.broadcast(JSON.stringify({
+                    type: 'editing',
+                    payload: {
+                        id: sender.id,
+                        name: this.state.players[sender.id]?.name,
+                        bugId: msg.payload.bugId, // null means stopped editing
+                    },
+                }));
+                break;
+            case 'code_update':
+                // Broadcast code changes to all OTHER players
+                this.room.broadcast(
+                    JSON.stringify({
+                        type: 'code_update',
+                        payload: {
+                            id: sender.id,
+                            bugId: msg.payload.bugId,
+                            code: msg.payload.code,
+                        },
+                    }),
+                    [sender.id] // exclude sender
+                );
+                break;
+            case 'cursor_position':
+                // Broadcast cursor position to all OTHER players
+                this.room.broadcast(
+                    JSON.stringify({
+                        type: 'cursor_position',
+                        payload: {
+                            id: sender.id,
+                            name: this.state.players[sender.id]?.name,
+                            bugId: msg.payload.bugId,
+                            line: msg.payload.line,
+                            column: msg.payload.column,
+                        },
+                    }),
+                    [sender.id] // exclude sender
+                );
+                break;
 
             default:
                 break;
