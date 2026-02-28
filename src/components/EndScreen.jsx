@@ -9,10 +9,10 @@ export default function EndScreen({
         score >= 90
             ? 'excellent'
             : score >= 70
-              ? 'good'
-              : score >= 50
-                ? 'average'
-                : 'poor'
+                ? 'good'
+                : score >= 50
+                    ? 'average'
+                    : 'poor'
 
     const unresolvedCount = bugHistory.filter(
         (b) => b.status === 'unresolved'
@@ -83,7 +83,9 @@ export default function EndScreen({
                                 <span className={`status-badge ${bug.status}`}>
                                     {bug.status === 'resolved'
                                         ? `✅ ${bug.resolvedBy}`
-                                        : '❌ Missed'}
+                                        : bug.status === 'expired'
+                                            ? '⏰ Expired'
+                                            : '❌ Missed'}
                                 </span>
                             </div>
                         ))}
