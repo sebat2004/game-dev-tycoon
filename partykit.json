@@ -1,0 +1,5 @@
+{
+    "name": "game-dev-tycoon",
+    "main": "party/server.js",
+    "compatibilityDate": "2024-09-01"
+}

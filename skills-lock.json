@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "skills": {
+    "ai-image-generation": {
+      "source": "inference-sh-9/skills",
+      "sourceType": "github",
+      "computedHash": "1ddd1a976e0a70b834bb175ef22382273c8223cd3d990a27f99bce4c5bd7ebd8"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "063a0e6448123cd359ad0044cc46b0e490cc7964d45ef4bb9fd842bd2ffbca67"
+    }
+  }
+}
