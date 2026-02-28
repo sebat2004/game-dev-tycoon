@@ -3,10 +3,12 @@
 
 const CLAUDE_MODEL = 'claude-sonnet-4-20250514'
 const GAME_DURATION = 300 // 5 minutes in seconds
-const MAX_ACTIVE_BUGS = 2
+const MAX_ACTIVE_BUGS = 10
+const MAX_VISIBLE_BUGS = 2
 const MIN_SPAWN_INTERVAL = 10 // seconds
 const MAX_SPAWN_INTERVAL = 20 // seconds
 const PENALTY_PER_BUG = 2 // % lost per unresolved bug
+const BUG_TIMEOUT = 60 // seconds before a bug auto-expires
 
 function randomSpawnDelay() {
     return (
@@ -94,6 +96,14 @@ export default class GameServer {
     onConnect(connection, ctx) {
         // Send current state to the new connection
         connection.send(JSON.stringify({ type: 'state', payload: this.state }))
+    }
+
+    getApiKey() {
+        const key = this.room.env?.CLAUDE_API_KEY || process.env.CLAUDE_API_KEY || ''
+        if (!key) {
+            console.error('CLAUDE_API_KEY is not set in room.env or process.env!')
+        }
+        return key
     }
 
     onClose(connection) {
@@ -218,8 +228,11 @@ export default class GameServer {
             this.state.progress = Math.min(
                 100,
                 ((GAME_DURATION - this.state.timeRemaining) / GAME_DURATION) *
-                    100
+                100
             )
+
+            // Check for expired bugs (60s timeout)
+            this.checkExpiredBugs()
 
             if (this.state.timeRemaining <= 0) {
                 this.endGame()
@@ -228,8 +241,8 @@ export default class GameServer {
             this.broadcast()
         }, 1000)
 
-        // Schedule first bug spawn
-        this.scheduleNextBug()
+        // Spawn first bug immediately, then schedule subsequent ones
+        this.spawnBug()
     }
 
     scheduleNextBug() {
@@ -240,6 +253,7 @@ export default class GameServer {
 
     async spawnBug() {
         if (this.state.status !== 'playing') return
+        console.log(`[spawnBug] activeBugs=${this.state.activeBugs.length}, maxActive=${MAX_ACTIVE_BUGS}`)
 
         // Only spawn if under max active bugs
         if (this.state.activeBugs.length < MAX_ACTIVE_BUGS) {
@@ -264,7 +278,7 @@ export default class GameServer {
                 const topic = topics[Math.floor(Math.random() * topics.length)]
 
                 const code = await callClaude(
-                    this.room.env.CLAUDE_API_KEY,
+                    this.getApiKey(),
                     BUG_GENERATION_PROMPT,
                     `Generate a buggy Python code snippet for this task: ${topic}`
                 )
@@ -277,6 +291,7 @@ export default class GameServer {
                         .replace('Write a function that ', '')
                         .replace('Write a class that ', ''),
                     spawnedAt: Date.now(),
+                    visibleAt: this.state.activeBugs.length < MAX_VISIBLE_BUGS ? Date.now() : null,
                 }
 
                 this.state.activeBugs.push(bug)
@@ -313,7 +328,7 @@ export default class GameServer {
 
         try {
             const resultStr = await callClaude(
-                this.room.env.CLAUDE_API_KEY,
+                this.getApiKey(),
                 BUG_VALIDATION_PROMPT,
                 `ORIGINAL BUGGY CODE:\n\`\`\`python\n${bug.code}\n\`\`\`\n\nPLAYER'S FIX:\n\`\`\`python\n${code}\n\`\`\``
             )
@@ -325,9 +340,9 @@ export default class GameServer {
                 result = jsonMatch
                     ? JSON.parse(jsonMatch[0])
                     : {
-                          fixed: false,
-                          explanation: 'Could not parse validation result.',
-                      }
+                        fixed: false,
+                        explanation: 'Could not parse validation result.',
+                    }
             } catch {
                 result = {
                     fixed: false,
@@ -348,6 +363,9 @@ export default class GameServer {
                     fixedCode: code,
                 })
                 this.state.totalBugsResolved += 1
+
+                // Promote next queued bug to visible
+                this.promoteQueuedBugs()
             }
 
             // Send result to all players
@@ -378,6 +396,51 @@ export default class GameServer {
         }
     }
 
+    checkExpiredBugs() {
+        const now = Date.now()
+        const expired = []
+        // Only expire bugs that are visible (have a visibleAt timestamp)
+        this.state.activeBugs = this.state.activeBugs.filter((bug) => {
+            if (!bug.visibleAt) return true // queued bugs don't expire
+            const visibleSeconds = (now - bug.visibleAt) / 1000
+            if (visibleSeconds >= BUG_TIMEOUT) {
+                expired.push(bug)
+                return false
+            }
+            return true
+        })
+        for (const bug of expired) {
+            this.state.bugHistory.push({
+                id: bug.id,
+                code: bug.code,
+                title: bug.title,
+                status: 'expired',
+                resolvedBy: null,
+                fixedCode: null,
+            })
+            this.state.score = Math.max(
+                0,
+                this.state.score - PENALTY_PER_BUG
+            )
+        }
+        // Promote queued bugs to fill visible slots
+        if (expired.length > 0) {
+            this.promoteQueuedBugs()
+        }
+    }
+
+    promoteQueuedBugs() {
+        const now = Date.now()
+        let visibleCount = this.state.activeBugs.filter((b) => b.visibleAt).length
+        for (const bug of this.state.activeBugs) {
+            if (visibleCount >= MAX_VISIBLE_BUGS) break
+            if (!bug.visibleAt) {
+                bug.visibleAt = now
+                visibleCount++
+            }
+        }
+    }
+
     endGame() {
         this.state.status = 'ended'
         clearInterval(this.timerInterval)
@@ -397,10 +460,10 @@ export default class GameServer {
         this.state.activeBugs = []
 
         // Calculate score
-        const unresolvedCount = this.state.bugHistory.filter(
-            (b) => b.status === 'unresolved'
+        const missedCount = this.state.bugHistory.filter(
+            (b) => b.status === 'unresolved' || b.status === 'expired'
         ).length
-        this.state.score = Math.max(0, 100 - unresolvedCount * PENALTY_PER_BUG)
+        this.state.score = Math.max(0, 100 - missedCount * PENALTY_PER_BUG)
         this.state.progress = 100
 
         this.broadcast()

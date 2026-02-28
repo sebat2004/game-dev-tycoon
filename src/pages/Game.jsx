@@ -23,6 +23,7 @@ export default function Game() {
     const [codeUpdates, setCodeUpdates] = useState({}); // { bugId: code }
     const [remoteCursors, setRemoteCursors] = useState({}); // { bugId: { playerId: { name, line, column } } }
     const [cursors, setCursors] = useState({});
+    const [expandedBugId, setExpandedBugId] = useState(null)
     const wsRef = useRef(null);
 
     useEffect(() => {
@@ -123,30 +124,8 @@ export default function Game() {
     }, []);
 
     const handlePlayAgain = useCallback(() => {
-        navigate("/");
-    }, [navigate]);
-
-    const handleEditingChange = useCallback((bugId, isEditing) => {
-        wsRef.current?.send(JSON.stringify({
-            type: "editing",
-            payload: { bugId: isEditing ? bugId : null },
-        }));
-    }, []);
-
-    const handleCodeChange = useCallback((bugId, code) => {
-        console.log(`📤 handleCodeChange called:`, { bugId, codeLength: code?.length });
-        wsRef.current?.send(JSON.stringify({
-            type: "code_update",
-            payload: { bugId, code },
-        }));
-    }, []);
-
-    const handleCursorChange = useCallback((bugId, line, column) => {
-        wsRef.current?.send(JSON.stringify({
-            type: "cursor_position",
-            payload: { bugId, line, column },
-        }));
-    }, []);
+        navigate('/')
+    }, [navigate])
 
     // Loading state
     if (!gameState) {
@@ -272,14 +251,15 @@ export default function Game() {
     }
 
     // Format timer
-    const mins = Math.floor(gameState.timeRemaining / 60);
-    const secs = gameState.timeRemaining % 60;
-    const timerStr = `${mins}:${secs.toString().padStart(2, "0")}`;
-    const timerClass = gameState.timeRemaining <= 30
-        ? "critical"
-        : gameState.timeRemaining <= 60
-        ? "warning"
-        : "";
+    const mins = Math.floor(gameState.timeRemaining / 60)
+    const secs = gameState.timeRemaining % 60
+    const timerStr = `${mins}:${secs.toString().padStart(2, '0')}`
+    const timerClass =
+        gameState.timeRemaining <= 30
+            ? 'critical'
+            : gameState.timeRemaining <= 60
+              ? 'warning'
+              : ''
 
     return (
         <div className="game-container">
@@ -356,37 +336,29 @@ export default function Game() {
 
             {/* Right area — Bug panel */}
             <div className="bug-area">
-                <BugQueue activeBugs={gameState.activeBugs} maxBugs={2} />
+                <BugQueue activeBugs={gameState.activeBugs} maxBugs={10} />
 
-                {gameState.activeBugs.length === 0
-                    ? (
-                        <div className="no-bugs-state">
-                            <div className="no-bugs-icon">✨</div>
-                            <div className="no-bugs-text">All Clear</div>
-                            <div className="no-bugs-subtext">
-                                No active bugs — enjoy the calm before the storm
-                            </div>
+                {gameState.activeBugs.length === 0 ? (
+                    <div className="no-bugs-state">
+                        <div className="no-bugs-icon">✨</div>
+                        <div className="no-bugs-text">All Clear</div>
+                        <div className="no-bugs-subtext">
+                            No active bugs — enjoy the calm before the storm
                         </div>
-                    )
-                    : (
-                        <div className="bug-cards-container">
-                            {gameState.activeBugs.map((bug) => (
-                                <BugCard
-                                    key={bug.id}
-                                    bug={bug}
-                                    onSubmit={handleSubmitFix}
-                                    feedback={fixFeedback[bug.id]}
-                                    isSubmitting={submitting[bug.id]}
-                                    onEditingChange={handleEditingChange}
-                                    onCodeChange={handleCodeChange}
-                                    onCursorChange={handleCursorChange}
-                                    editingPlayers={editingPresence[bug.id] || []}
-                                    externalCode={codeUpdates[bug.id]}
-                                    remoteCursors={remoteCursors[bug.id] || {}}
-                                />
-                            ))}
-                        </div>
-                    )}
+                    </div>
+                ) : (
+                    <div className="bug-cards-container">
+                        {gameState.activeBugs.map((bug) => (
+                            <BugCard
+                                key={bug.id}
+                                bug={bug}
+                                onSubmit={handleSubmitFix}
+                                feedback={fixFeedback[bug.id]}
+                                isSubmitting={submitting[bug.id]}
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* End screen overlay */}

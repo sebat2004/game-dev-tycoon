@@ -1,5 +1,7 @@
 export default function BugQueue({ activeBugs, maxBugs }) {
-    const count = activeBugs?.length || 0
+    const total = activeBugs?.length || 0
+    const visible = activeBugs?.filter((b) => b.visibleAt).length || 0
+    const queued = total - visible
 
     return (
         <div className="bug-queue-bar">
@@ -8,16 +10,14 @@ export default function BugQueue({ activeBugs, maxBugs }) {
                 {Array.from({ length: maxBugs }).map((_, i) => (
                     <div
                         key={i}
-                        className={`bug-queue-dot ${i < count ? '' : 'empty'}`}
+                        className={`bug-queue-dot ${i < visible ? '' : i < total ? 'queued' : 'empty'}`}
                     />
                 ))}
             </div>
             <span className="bug-queue-status">
-                {count === 0
+                {total === 0
                     ? 'No active bugs'
-                    : count === 1
-                      ? '1 bug active'
-                      : `${count} bugs active`}
+                    : `${visible} visible${queued > 0 ? ` · ${queued} queued` : ''}`}
             </span>
         </div>
     )
