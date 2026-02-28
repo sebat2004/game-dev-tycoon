@@ -7,7 +7,7 @@ import BugQueue from '../components/BugQueue'
 import BugHistory from '../components/BugHistory'
 import EndScreen from '../components/EndScreen'
 
-const PARTYKIT_HOST = 'localhost:1999'
+const PARTYKIT_HOST = 'https://game-dev-tycoon.sebat2004.partykit.dev/'
 
 export default function Game() {
     const { roomId } = useParams()

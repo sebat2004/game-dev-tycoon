@@ -47,6 +47,7 @@ async function callClaude(apiKey, systemPrompt, userPrompt) {
 const BUG_GENERATION_PROMPT = `You are a Python coding challenge generator for a game. Generate a short Python code snippet (10-15 lines) that contains exactly ONE bug. The bug should be solvable in under 60 seconds by a competent programmer.
 
 Rules:
+- The bug should be VERY simple.
 - The code should be a small self-contained function or class
 - Include a clear docstring explaining what the code SHOULD do
 - The bug should be subtle but logical (off-by-one, wrong operator, missing edge case, wrong variable, etc.)
