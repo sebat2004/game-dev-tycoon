@@ -10,11 +10,12 @@
         "party": "npx partykit dev"
     },
     "dependencies": {
+        "@monaco-editor/react": "^4.7.0",
+        "@vercel/analytics": "^1.6.1",
+        "partysocket": "^1.0.3",
         "react": "^19.0.0",
         "react-dom": "^19.0.0",
-        "react-router-dom": "^7.2.0",
-        "@monaco-editor/react": "^4.7.0",
-        "partysocket": "^1.0.3"
+        "react-router-dom": "^7.2.0"
     },
     "devDependencies": {
         "@types/react": "^19.0.0",
