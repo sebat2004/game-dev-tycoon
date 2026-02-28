@@ -332,7 +332,17 @@ export default function Game() {
             ))}
 
             <div className="game-header">
-                <h1>🎮 Game Dev Tycoon</h1>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <button
+                        className="btn-icon"
+                        onClick={handlePlayAgain}
+                        title="Leave session"
+                        style={{ fontSize: '0.85rem', width: '36px', height: '36px' }}
+                    >
+                        ←
+                    </button>
+                    <h1>🎮 Game Dev Tycoon</h1>
+                </div>
                 <div
                     style={{
                         display: "flex",
