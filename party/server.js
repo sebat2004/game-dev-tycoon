@@ -2,7 +2,7 @@
 // Manages rooms, game state, bug spawning, and Claude API calls
 
 const CLAUDE_MODEL = 'claude-sonnet-4-20250514'
-const GAME_DURATION = 300 // 5 minutes in seconds
+const GAME_DURATION = 120 // 5 minutes in seconds
 const MAX_ACTIVE_BUGS = 10
 const MAX_VISIBLE_BUGS = 2
 const MIN_SPAWN_INTERVAL = 10 // seconds
@@ -99,9 +99,12 @@ export default class GameServer {
     }
 
     getApiKey() {
-        const key = this.room.env?.CLAUDE_API_KEY || process.env.CLAUDE_API_KEY || ''
+        const key =
+            this.room.env?.CLAUDE_API_KEY || process.env.CLAUDE_API_KEY || ''
         if (!key) {
-            console.error('CLAUDE_API_KEY is not set in room.env or process.env!')
+            console.error(
+                'CLAUDE_API_KEY is not set in room.env or process.env!'
+            )
         }
         return key
     }
@@ -162,21 +165,26 @@ export default class GameServer {
                         },
                     }),
                     [sender.id] // exclude sender
-                );
-                break;
+                )
+                break
             case 'editing':
-                this.room.broadcast(JSON.stringify({
-                    type: 'editing',
-                    payload: {
-                        id: sender.id,
-                        name: this.state.players[sender.id]?.name,
-                        bugId: msg.payload.bugId, // null means stopped editing
-                    },
-                }));
-                break;
+                this.room.broadcast(
+                    JSON.stringify({
+                        type: 'editing',
+                        payload: {
+                            id: sender.id,
+                            name: this.state.players[sender.id]?.name,
+                            bugId: msg.payload.bugId, // null means stopped editing
+                        },
+                    })
+                )
+                break
             case 'code_update':
                 // Broadcast code changes to all OTHER players
-                console.log('📝 Server received code_update:', { bugId: msg.payload.bugId, codeLength: msg.payload.code?.length });
+                console.log('📝 Server received code_update:', {
+                    bugId: msg.payload.bugId,
+                    codeLength: msg.payload.code?.length,
+                })
                 this.room.broadcast(
                     JSON.stringify({
                         type: 'code_update',
@@ -187,8 +195,8 @@ export default class GameServer {
                         },
                     }),
                     [sender.id] // exclude sender
-                );
-                break;
+                )
+                break
             case 'cursor_position':
                 // Broadcast cursor position to all OTHER players
                 this.room.broadcast(
@@ -203,8 +211,8 @@ export default class GameServer {
                         },
                     }),
                     [sender.id] // exclude sender
-                );
-                break;
+                )
+                break
 
             default:
                 break
@@ -228,7 +236,7 @@ export default class GameServer {
             this.state.progress = Math.min(
                 100,
                 ((GAME_DURATION - this.state.timeRemaining) / GAME_DURATION) *
-                100
+                    100
             )
 
             // Check for expired bugs (60s timeout)
@@ -253,27 +261,44 @@ export default class GameServer {
 
     async spawnBug() {
         if (this.state.status !== 'playing') return
-        console.log(`[spawnBug] activeBugs=${this.state.activeBugs.length}, maxActive=${MAX_ACTIVE_BUGS}`)
+        console.log(
+            `[spawnBug] activeBugs=${this.state.activeBugs.length}, maxActive=${MAX_ACTIVE_BUGS}`
+        )
 
         // Only spawn if under max active bugs
         if (this.state.activeBugs.length < MAX_ACTIVE_BUGS) {
             try {
                 const topics = [
-                    'Write a function that reverses a linked list',
-                    'Write a function that finds the second largest number in a list',
-                    'Write a class that implements a basic stack with push, pop, and peek',
-                    'Write a function that checks if a string is a valid palindrome ignoring spaces and case',
-                    'Write a function that merges two sorted lists into one sorted list',
-                    'Write a function that computes the nth Fibonacci number using memoization',
-                    'Write a function that finds all prime numbers up to n using Sieve of Eratosthenes',
-                    'Write a function that rotates a matrix 90 degrees clockwise',
-                    'Write a function that finds the longest common substring of two strings',
-                    'Write a function that implements binary search on a sorted array',
-                    'Write a function that converts a Roman numeral string to an integer',
-                    'Write a function that validates balanced parentheses in a string',
-                    'Write a function that removes duplicates from a sorted linked list',
-                    'Write a function that computes the power set of a given set',
-                    'Write a function that finds the majority element in an array',
+                    'Write a function that returns the sum of only the odd numbers in a list',
+                    'Write a function that returns the count of numbers divisible by 3 in a list',
+                    'Write a function that returns the second largest number in a list',
+                    'Write a function that removes all duplicate values from a list',
+                    'Write a function that returns the longest word in a sentence',
+                    'Write a function that checks if a string contains only numbers',
+                    'Write a function that returns true if all numbers in a list are even',
+                    'Write a function that returns a list with all numbers multiplied by their index',
+                    'Write a function that returns the difference between the first and last element of a list',
+                    "Write a function that replaces all vowels in a string with '*'",
+                    'Write a function that returns the average of numbers greater than 10 in a list',
+                    'Write a function that checks if a string has more vowels than consonants',
+                    'Write a function that returns the number of unique elements in a list',
+                    'Write a function that removes all words shorter than 4 characters from a list',
+                    'Write a function that returns true if a list is sorted in ascending order',
+                    'Write a function that rotates a list one position to the right',
+                    'Write a function that finds the first non-repeating character in a string',
+                    'Write a function that returns the most frequent number in a list',
+                    'Write a function that checks if two strings are anagrams',
+                    'Write a function that returns all numbers that appear more than once in a list',
+                    'Write a function that returns the product of all numbers except the current index',
+                    'Write a function that checks if a string is a palindrome (no special rules)',
+                    'Write a function that finds the missing number in a list from 1 to n',
+                    'Write a function that returns the index of the second occurrence of a value',
+                    'Write a function that groups even and odd numbers into separate lists',
+                    "Write a function that compresses a string like 'aaabb' → 'a3b2'",
+                    'Write a function that checks if any two numbers in a list sum to 10',
+                    'Write a function that returns the longest streak of the same number in a list',
+                    'Write a function that finds the smallest positive number in a list',
+                    'Write a function that removes consecutive duplicate characters in a string',
                 ]
                 const topic = topics[Math.floor(Math.random() * topics.length)]
 
@@ -291,7 +316,10 @@ export default class GameServer {
                         .replace('Write a function that ', '')
                         .replace('Write a class that ', ''),
                     spawnedAt: Date.now(),
-                    visibleAt: this.state.activeBugs.length < MAX_VISIBLE_BUGS ? Date.now() : null,
+                    visibleAt:
+                        this.state.activeBugs.length < MAX_VISIBLE_BUGS
+                            ? Date.now()
+                            : null,
                 }
 
                 this.state.activeBugs.push(bug)
@@ -340,9 +368,9 @@ export default class GameServer {
                 result = jsonMatch
                     ? JSON.parse(jsonMatch[0])
                     : {
-                        fixed: false,
-                        explanation: 'Could not parse validation result.',
-                    }
+                          fixed: false,
+                          explanation: 'Could not parse validation result.',
+                      }
             } catch {
                 result = {
                     fixed: false,
@@ -418,10 +446,7 @@ export default class GameServer {
                 resolvedBy: null,
                 fixedCode: null,
             })
-            this.state.score = Math.max(
-                0,
-                this.state.score - PENALTY_PER_BUG
-            )
+            this.state.score = Math.max(0, this.state.score - PENALTY_PER_BUG)
         }
         // Promote queued bugs to fill visible slots
         if (expired.length > 0) {
@@ -431,7 +456,9 @@ export default class GameServer {
 
     promoteQueuedBugs() {
         const now = Date.now()
-        let visibleCount = this.state.activeBugs.filter((b) => b.visibleAt).length
+        let visibleCount = this.state.activeBugs.filter(
+            (b) => b.visibleAt
+        ).length
         for (const bug of this.state.activeBugs) {
             if (visibleCount >= MAX_VISIBLE_BUGS) break
             if (!bug.visibleAt) {
