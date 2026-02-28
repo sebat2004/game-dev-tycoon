@@ -116,9 +116,9 @@ export default function BugCard(
     };
 
     const handleSubmit = () => {
-        if (isSubmitting) return;
-        onSubmit(bug.id, code);
-    };
+        if (isSubmitting) return
+        onSubmit(bug.id, code)
+    }
 
     return (
         <div className="bug-card">
@@ -202,5 +202,5 @@ export default function BugCard(
                 </button>
             </div>
         </div>
-    );
+    )
 }

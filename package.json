@@ -1,26 +1,27 @@
 {
-  "name": "game-dev-tycoon",
-  "private": true,
-  "version": "1.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "party": "npx partykit dev"
-  },
-  "dependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-router-dom": "^7.2.0",
-    "@monaco-editor/react": "^4.7.0",
-    "partysocket": "^1.0.3"
-  },
-  "devDependencies": {
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
-    "@vitejs/plugin-react": "^4.3.4",
-    "partykit": "^0.0.111",
-    "vite": "^6.1.0"
-  }
+    "name": "game-dev-tycoon",
+    "private": true,
+    "version": "1.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview",
+        "party": "npx partykit dev"
+    },
+    "dependencies": {
+        "@monaco-editor/react": "^4.7.0",
+        "@vercel/analytics": "^1.6.1",
+        "partysocket": "^1.0.3",
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0",
+        "react-router-dom": "^7.2.0"
+    },
+    "devDependencies": {
+        "@types/react": "^19.0.0",
+        "@types/react-dom": "^19.0.0",
+        "@vitejs/plugin-react": "^4.3.4",
+        "partykit": "^0.0.111",
+        "vite": "^6.1.0"
+    }
 }
