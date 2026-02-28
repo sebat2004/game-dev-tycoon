@@ -21,7 +21,9 @@ export default function BugHistory({ history }) {
                             <span className={`status-badge ${bug.status}`}>
                                 {bug.status === 'resolved'
                                     ? '✅ Fixed'
-                                    : '❌ Missed'}
+                                    : bug.status === 'expired'
+                                        ? '⏰ Expired'
+                                        : '❌ Missed'}
                             </span>
                         </div>
                     ))}

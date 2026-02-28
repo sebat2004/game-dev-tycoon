@@ -19,6 +19,7 @@ export default function Game() {
     const [fixFeedback, setFixFeedback] = useState({}) // { bugId: { fixed, explanation, submittedBy } }
     const [submitting, setSubmitting] = useState({}) // { bugId: true }
     const [cursors, setCursors] = useState({})
+    const [expandedBugId, setExpandedBugId] = useState(null)
     const wsRef = useRef(null)
 
     useEffect(() => {
@@ -91,6 +92,10 @@ export default function Game() {
     const handlePlayAgain = useCallback(() => {
         navigate('/')
     }, [navigate])
+
+    const handleToggleExpand = useCallback((bugId) => {
+        setExpandedBugId((prev) => (prev === bugId ? null : bugId))
+    }, [])
 
     // Loading state
     if (!gameState) {
@@ -223,8 +228,8 @@ export default function Game() {
         gameState.timeRemaining <= 30
             ? 'critical'
             : gameState.timeRemaining <= 60
-              ? 'warning'
-              : ''
+                ? 'warning'
+                : ''
 
     return (
         <div className="game-container">
@@ -301,9 +306,9 @@ export default function Game() {
 
             {/* Right area — Bug panel */}
             <div className="bug-area">
-                <BugQueue activeBugs={gameState.activeBugs} maxBugs={2} />
+                <BugQueue activeBugs={gameState.activeBugs} maxBugs={10} />
 
-                {gameState.activeBugs.length === 0 ? (
+                {gameState.activeBugs.filter((b) => b.visibleAt).length === 0 ? (
                     <div className="no-bugs-state">
                         <div className="no-bugs-icon">✨</div>
                         <div className="no-bugs-text">All Clear</div>
@@ -313,15 +318,19 @@ export default function Game() {
                     </div>
                 ) : (
                     <div className="bug-cards-container">
-                        {gameState.activeBugs.map((bug) => (
-                            <BugCard
-                                key={bug.id}
-                                bug={bug}
-                                onSubmit={handleSubmitFix}
-                                feedback={fixFeedback[bug.id]}
-                                isSubmitting={submitting[bug.id]}
-                            />
-                        ))}
+                        {gameState.activeBugs
+                            .filter((bug) => bug.visibleAt)
+                            .map((bug) => (
+                                <BugCard
+                                    key={bug.id}
+                                    bug={bug}
+                                    onSubmit={handleSubmitFix}
+                                    feedback={fixFeedback[bug.id]}
+                                    isSubmitting={submitting[bug.id]}
+                                    isExpanded={expandedBugId === bug.id}
+                                    onToggleExpand={handleToggleExpand}
+                                />
+                            ))}
                     </div>
                 )}
             </div>
