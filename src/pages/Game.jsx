@@ -8,6 +8,7 @@ import BugHistory from "../components/BugHistory";
 import EndScreen from "../components/EndScreen";
 
 const PARTYKIT_HOST = 'https://game-dev-tycoon.sebat2004.partykit.dev/'
+//const PARTYKIT_HOST = 'localhost:1999'
 
 export default function Game() {
     const { roomId } = useParams();
@@ -75,6 +76,7 @@ export default function Game() {
                     return next;
                 });
             } else if (msg.type === "code_update") {
+                console.log("📝 Received code_update:", msg.payload);
                 const { bugId, code } = msg.payload;
                 setCodeUpdates((prev) => ({
                     ...prev,
@@ -132,6 +134,7 @@ export default function Game() {
     }, []);
 
     const handleCodeChange = useCallback((bugId, code) => {
+        console.log(`📤 handleCodeChange called:`, { bugId, codeLength: code?.length });
         wsRef.current?.send(JSON.stringify({
             type: "code_update",
             payload: { bugId, code },

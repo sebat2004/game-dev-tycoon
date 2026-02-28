@@ -20,19 +20,24 @@ export default function BugCard(
     const [code, setCode] = useState(bug.code);
     const editorRef = useRef(null);
     const isExternalUpdateRef = useRef(false);
+    const lastAppliedExternalCodeRef = useRef(bug.code);
     const cursorDecorationsRef = useRef([]);
 
     // Handle external code updates from other players
     useEffect(() => {
-        if (externalCode !== undefined && externalCode !== code) {
+        // Only apply if this is a NEW external update (different from what we already applied)
+        if (externalCode !== undefined && externalCode !== lastAppliedExternalCodeRef.current) {
+            console.log(`📥 Applying external code to editor for ${bug.id}`);
             isExternalUpdateRef.current = true;
+            lastAppliedExternalCodeRef.current = externalCode;
             setCode(externalCode);
+            
             // Reset flag after state update
             setTimeout(() => {
                 isExternalUpdateRef.current = false;
             }, 0);
         }
-    }, [externalCode]);
+    }, [externalCode, bug.id]);
 
     // Update remote cursor decorations
     useEffect(() => {
@@ -108,10 +113,14 @@ export default function BugCard(
     };
 
     const handleCodeChange = (newCode) => {
+        console.log(`📤 Code changed for ${bug.id}, sending: ${newCode?.slice(0, 30)}...`);
         setCode(newCode || "");
         // Only send if not an external update
         if (!isExternalUpdateRef.current) {
+            console.log(`📡 Sending code_update`);
             onCodeChange?.(bug.id, newCode || "");
+        } else {
+            console.log(`⏭️  Skipping send (external update)`);
         }
     };
 

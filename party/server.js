@@ -166,6 +166,7 @@ export default class GameServer {
                 break;
             case 'code_update':
                 // Broadcast code changes to all OTHER players
+                console.log('📝 Server received code_update:', { bugId: msg.payload.bugId, codeLength: msg.payload.code?.length });
                 this.room.broadcast(
                     JSON.stringify({
                         type: 'code_update',
