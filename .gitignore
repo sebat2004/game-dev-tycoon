@@ -22,3 +22,5 @@ dist/
 # Logs
 *.log
 npm-debug.log*
+
+.agents/

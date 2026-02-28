@@ -1,7 +1,6 @@
 // PartyKit Server — Game Dev Tycoon
 // Manages rooms, game state, bug spawning, and Claude API calls
 
-const CLAUDE_API_KEY = "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";
 const CLAUDE_MODEL = "claude-sonnet-4-20250514";
 const GAME_DURATION = 300; // 5 minutes in seconds
 const MAX_ACTIVE_BUGS = 2;
@@ -17,12 +16,12 @@ function generateBugId() {
     return 'bug_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
 }
 
-async function callClaude(systemPrompt, userPrompt) {
+async function callClaude(apiKey, systemPrompt, userPrompt) {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'x-api-key': CLAUDE_API_KEY,
+            'x-api-key': apiKey,
             'anthropic-version': '2023-06-01',
         },
         body: JSON.stringify({
@@ -191,6 +190,7 @@ export default class GameServer {
                 const topic = topics[Math.floor(Math.random() * topics.length)];
 
                 const code = await callClaude(
+                    this.room.env.CLAUDE_API_KEY,
                     BUG_GENERATION_PROMPT,
                     `Generate a buggy Python code snippet for this task: ${topic}`
                 );
@@ -228,6 +228,7 @@ export default class GameServer {
 
         try {
             const resultStr = await callClaude(
+                this.room.env.CLAUDE_API_KEY,
                 BUG_VALIDATION_PROMPT,
                 `ORIGINAL BUGGY CODE:\n\`\`\`python\n${bug.code}\n\`\`\`\n\nPLAYER'S FIX:\n\`\`\`python\n${code}\n\`\`\``
             );
