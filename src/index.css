@@ -299,7 +299,10 @@ body::after {
     grid-template-rows: auto 1fr;
     gap: 1.25rem;
     max-width: 1600px;
+    width: 100%;
     margin: 0 auto;
+    box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 .game-header {
@@ -545,6 +548,8 @@ body::after {
     flex-direction: column;
     gap: 1.25rem;
     min-height: 0;
+    min-width: 0;
+    overflow: hidden;
 }
 
 /* ── Bug Queue Bar ── */

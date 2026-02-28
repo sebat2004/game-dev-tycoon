@@ -180,7 +180,7 @@ export default function BugCard({
                                     : "Full screen"
                             }
                         >
-                            {isExpanded ? "⊖" : "⊕"}
+                            {isExpanded ? "✕" : "⛶"}
                         </button>
                     )}
                 </div>
@@ -278,7 +278,16 @@ export default function BugCard({
     );
 
     if (isExpanded) {
-        return <div className="bug-fullscreen-overlay">{card}</div>;
+        return (
+            <div
+                className="bug-fullscreen-overlay"
+                onClick={() => onToggleExpand(bug.id)}
+            >
+                <div onClick={(e) => e.stopPropagation()}>
+                    {card}
+                </div>
+            </div>
+        );
     }
 
     return card;
