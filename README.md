@@ -1,0 +1,5 @@
+Game Dev Tycoon is a real-time, 4-player co-op simulation game built with React and PartyKit where users run a frantic development studio. Over a 5-minute sprint, players collaborate with live cursors and shared typing to solve dynamic Python coding bugs generated and validated by Claude AI, racing to complete all bugs before the time runs out.
+
+This project was born out of a minor obsession with the mobile game Game Dev Tycoon. After playing it non-stop, Carson kept thinking about how fun it would be if the "development" phase required actual coding. He wanted to take that core simulation loop and improve on it by forcing players to write real code in real-time to ship their games.
+
+Ultimately, we wanted to build a genuinely fun, chaotic multiplayer experience. The live, pressure-cooker environment forces players to communicate and delegate tasks on the fly just to keep the virtual studio afloat. This frantic debugging loop also happens to be a great side-benefit for honing real-world technical skills and interview prep.
