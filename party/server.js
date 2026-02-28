@@ -125,6 +125,21 @@ export default class GameServer {
             case 'submit_fix':
                 await this.handleSubmitFix(msg.payload, sender);
                 break;
+            case 'cursor':
+                // Attach player name and broadcast to everyone except sender
+                this.room.broadcast(
+                    JSON.stringify({
+                        type: 'cursor',
+                        payload: {
+                            id: sender.id,
+                            name: this.state.players[sender.id]?.name,
+                            x: msg.payload.x,
+                            y: msg.payload.y,
+                        },
+                    }),
+                    [sender.id] // exclude sender
+                );
+                break;
 
             default:
                 break;
